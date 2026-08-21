@@ -154,6 +154,28 @@ function renderBreadcrumbs(path)
 
 }
 
+async function searchFiles(path, query) 
+{
+
+    try
+    {
+        // Call search API
+        const response = await fetch(
+            `/api/files/search?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`
+            );
+        // Convert response to JSON
+        const data = await response.json();
+
+        // Render results
+        renderItems(data);
+    }
+    catch (error)
+    {
+        console.error("Search failed:", error);
+    }
+    
+}
+
 
 
 const params = new URLSearchParams(window.location.search);
@@ -188,20 +210,10 @@ searchForm.addEventListener("submit", async (event) => {
         return;
     }
 
-    try
-    {
-        // Call search API
-        const response = await fetch(
-            `/api/files/search?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`
-            );
-        // Convert response to JSON
-        const data = await response.json();
+    //Update URL
+    navigateSearch(path, query);
 
-        // Render results
-        renderItems(data);
-    }
-    catch (error)
-    {
-        console.error("Search failed:", error);
-    }
+    //SearchFiles
+    searchFiles(path, query);
+
 });
