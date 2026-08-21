@@ -1,3 +1,7 @@
+const searchForm = document.getElementById("search-form");
+const searchInput = document.getElementById("search-input");
+
+
 async function loadFiles(path = "") {
     try 
     {
@@ -93,12 +97,16 @@ function navigateTo(path)
     if (path)
     {
         url.searchParams.set("path", path);
+        
     }
     else
     {
         url.searchParams.delete("path");
     }
 
+    //Remove search param regardless of whether the destination is root
+    url.searchParams.delete("search");
+    searchInput.value = "";
     //Change the url without refreshing the entire page
     window.history.pushState({}, "", url);
 
@@ -127,6 +135,7 @@ function renderBreadcrumbs(path)
         return;
     }
 
+    //may need to change this later
     const segments = path.split("/");
     let currentPath = "";
 
@@ -163,8 +172,16 @@ async function searchFiles(path, query)
         const response = await fetch(
             `/api/files/search?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`
             );
+
+        if (!response.ok) 
+        {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         // Convert response to JSON
         const data = await response.json();
+
+        //Show the bread crumbs
+        renderBreadcrumbs(path)
 
         // Render results
         renderItems(data);
@@ -180,22 +197,41 @@ async function searchFiles(path, query)
 
 const params = new URLSearchParams(window.location.search);
 const initialPath = params.get("path") ?? "";
+const initialSearch = params.get("search") ?? "";
 
-loadFiles(initialPath);
+if (initialSearch)
+{
+
+    //populate the input
+    searchInput.value = initialSearch;
+    searchFiles(initialPath, initialSearch);
+}
+else
+{
+    loadFiles(initialPath);
+}
 
 //The popsate fires when the user uses the back/forward button
 window.addEventListener("popstate", () => {
     const params = new URLSearchParams(window.location.search);
     const path = params.get("path") ?? "";
 
-    loadFiles(path);
+    const search = params.get("search") ?? "";
+
+    if (search)
+    {
+        searchInput.value = search;
+        searchFiles(path, search);
+    }
+    else
+    {
+        searchInput.value = "";
+        loadFiles(path);
+    }
 });
 
 
-const searchForm = document.getElementById("search-form");
-const searchInput = document.getElementById("search-input");
-
-searchForm.addEventListener("submit", async (event) => {
+searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const query = searchInput.value.trim();
@@ -206,6 +242,7 @@ searchForm.addEventListener("submit", async (event) => {
 
     //if the query is an empty string send them to the path
     if (!query) {
+        navigateSearch(path, "");
         loadFiles(path);
         return;
     }
