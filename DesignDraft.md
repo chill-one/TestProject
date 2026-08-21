@@ -437,6 +437,60 @@ Since search can happen from several situation:
 so its probably a good idea to extract the logic.
 
 
+File Download
+-
+The flow would look something like this:
+
+    User clicks Download
+            ↓
+    "Projects/report.pdf"
+            ↓
+    GET /api/files/download?path=Projects/report.pdf
+            ↓
+    FileController
+            ↓
+    FileService
+            ↓
+    ResolvePath()
+            ↓
+    Open file
+            ↓
+    Stream file to browser
+
+Using a **Stream** allows us to send small pieces of data, this is very good for large size as the server only needs to hold small amount of data at a time.
+
+The two things we need for a download is a filename and the stream containing the file data.
+
+**Filename**
+- Tells the controller what name the browser should use when downloading them.
+
+**Stream**
+- Contains the actual bytes.
+
+pipeline:
+
+    FileService
+        ↓
+    find + validate "Projects/report.pdf"
+        ↓
+    open FileStream
+        ↓
+    return:
+        Stream
+        FileName = "report.pdf"
+        
+
+    FileController
+        ↓
+    construct HTTP file response
+        ↓
+    Browser receives:
+        bytes + filename
+        ↓
+    report.pdf downloads
+
+
+
 
 
 
