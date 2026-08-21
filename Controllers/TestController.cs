@@ -42,4 +42,33 @@ public class FileController : ControllerBase
                 );
         }
     }
+
+    [HttpGet("search")]
+    public ActionResult<List<FileItem>> Search([FromQuery] string path = "", [FromQuery] string query = "")
+    {
+        try
+        {
+            List<FileItem> items = _fileService.SearchDirectory(path, query);
+            return Ok(items);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new
+            {
+                error = "The requested directory was not found."
+            }
+            );
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                new
+                {
+                    error = "Access to the requested path is not allowed."
+                }
+                );
+        }
+    }
+
 }
