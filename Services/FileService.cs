@@ -104,4 +104,60 @@ public class FileService
 
     }
 
+    public List<FileItem> SearchDirectory(string relativePath, string query)
+    {
+        string normalizedFullPath = ResolvePath(relativePath);
+
+        DirectoryInfo directory = new DirectoryInfo(normalizedFullPath);
+
+        if (!directory.Exists)
+        {
+            throw new DirectoryNotFoundException(
+                "Could not find the Directory with the given path."
+            );
+        }
+
+        List<FileItem> result = new List<FileItem>();
+
+        //Finds every files nested inside this directory recursively.
+        foreach(FileInfo file in directory.EnumerateFiles("*", SearchOption.AllDirectories))
+        {
+
+            if(file.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                result.Add(
+                    new FileItem
+                    {
+                        Name = file.Name,
+                        Size = file.Length,
+                        Path = Path.GetRelativePath(_homeDirectory, file.FullName),
+                        LastModifiedDate = file.LastWriteTimeUtc,
+                        Type = FileItemType.File
+                    }
+                );
+            }
+    
+        }
+        //Get all the directory inside the given path
+        foreach(DirectoryInfo dir in directory.EnumerateDirectories("*", SearchOption.AllDirectories))
+        {
+            if(dir.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                result.Add(
+                    new FileItem
+                    {
+                        Name = dir.Name,
+                        Path = Path.GetRelativePath(_homeDirectory, dir.FullName),
+                        Type = FileItemType.Directory,
+                        Size = null,
+                        LastModifiedDate = dir.LastWriteTimeUtc
+                        
+                    }
+                );
+            }
+        }
+
+        return result;
+    }
+
 }
