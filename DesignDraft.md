@@ -427,6 +427,14 @@ Right now, if you search for 'report' inside the directory Projects the URL stil
 
 For this we will create a `navigateSearch()` similar to `navigateTo()` in our app.js.
 
+Since search can happen from several situation:
+
+    Search form submit
+    Page refresh
+    Browser Back
+    Browser Forward
+
+so its probably a good idea to extract the logic.
 
 
 
