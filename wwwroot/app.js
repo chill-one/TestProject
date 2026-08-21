@@ -19,7 +19,10 @@ async function loadFiles(path = "") {
         console.error('Fetch failed:', error);
     }
 }
-loadFiles();
+const params = new URLSearchParams(window.location.search);
+const initialPath = params.get("path") ?? "";
+
+loadFiles(initialPath);
 
 function renderItems(data) {
     const fileList = document.getElementById("file-list");
