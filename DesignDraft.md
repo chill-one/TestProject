@@ -478,7 +478,7 @@ pipeline:
     return:
         Stream
         FileName = "report.pdf"
-        
+
 
     FileController
         ↓
@@ -488,6 +488,10 @@ pipeline:
         bytes + filename
         ↓
     report.pdf downloads
+
+For checking if a file exists we can use `File.Exists()` and for reading a cile we can use `File.OpenRead()`.
+
+The logic for this will be in function `OpenDownload()`.
 
 
 
