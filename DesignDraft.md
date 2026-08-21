@@ -331,6 +331,8 @@ What if the current path contains illegal characters:
 `history.pushState()` 
 - changes the URL without refreshing the entire page.
 
+The logic for this will be in the function `navigateTo()`.
+
 
 
 

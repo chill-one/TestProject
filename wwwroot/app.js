@@ -44,7 +44,7 @@ function renderItems(data) {
             //Create buttons for directory
             newListItem.addEventListener("click",
                 () => {
-                    loadFiles(item.path);
+                    naviageTo(item.path);
                 }
             )
         }
@@ -58,4 +58,21 @@ function renderItems(data) {
 
         fileList.appendChild(newListItem);
     });
+}
+
+function naviageTo(path)
+{
+    const url = new URL(window.location);
+
+    if (path)
+    {
+        url.searchParams.set("path", path);
+    }
+    else
+    {
+        url.searchParams.delete("path");
+    }
+
+    //Change the url without refreshing the entire page
+    window.history.pushState({}, "", url);
 }
