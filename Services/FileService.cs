@@ -59,7 +59,8 @@ public class FileService
         string normalizedFullPath = ResolvePath(relativePath);
 
         DirectoryInfo directory = new DirectoryInfo(normalizedFullPath);
-
+        
+        //Pre check
         if (!directory.Exists)
         {
             throw new DirectoryNotFoundException(
@@ -84,7 +85,7 @@ public class FileService
             );
         }
 
-                //Get the files info
+        //Get the files info
         foreach (FileInfo file in directory.GetFiles())
         {
             items.Add(
