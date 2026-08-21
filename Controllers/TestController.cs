@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TestProject.Models;
 using TestProject.Services;
 
 namespace TestProject.Controllers;
@@ -12,5 +13,12 @@ public class FileController : ControllerBase
     public FileController(FileService fileService)
     {
         _fileService = fileService;
+    }
+
+    [HttpGet]
+    public ActionResult<List<FileItem>> Browse([FromQuery] string path = "")
+    {
+        List<FileItem> items = _fileService.BrowseDirectory(path);
+        return Ok(items);
     }
 }
