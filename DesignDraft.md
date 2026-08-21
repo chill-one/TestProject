@@ -333,6 +333,16 @@ What if the current path contains illegal characters:
 
 The logic for this will be in the function `navigateTo()`.
 
+One problem we have right now is loading the inital folder from the URL as of right now am using `loadFiles()`which ignores the URL and loads the root even if the URL had something like `https://localhost:7146/?path=Projects`.
+
+    //Grab the url
+    const params = new URLSearchParams(window.location.search);
+    const initialPath = params.get("path") ?? "";
+
+    //Use root if null else use the given url
+    loadFiles(initialPath);
+
+
 
 
 
