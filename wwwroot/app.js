@@ -78,4 +78,6 @@ function naviageTo(path)
 
     //Change the url without refreshing the entire page
     window.history.pushState({}, "", url);
+
+    loadFiles(path)
 }
