@@ -12,7 +12,8 @@ async function loadFiles(path = "") {
 
         const data = await response.json();
         
-        renderItems(data)
+        renderBreadcrumbs(path);
+        renderItems(data);
     }
     catch (error)
     {
@@ -44,9 +45,9 @@ function renderItems(data) {
             //Create buttons for directory
             newListItem.addEventListener("click",
                 () => {
-                    naviageTo(item.path);
+                    navigateTo(item.path);
                 }
-            )
+            );
         }
         else
         {
@@ -60,7 +61,7 @@ function renderItems(data) {
     });
 }
 
-function naviageTo(path)
+function navigateTo(path)
 {
     const url = new URL(window.location);
 
@@ -76,8 +77,58 @@ function naviageTo(path)
     //Change the url without refreshing the entire page
     window.history.pushState({}, "", url);
 
-    loadFiles(path)
+    loadFiles(path);
 }
+
+function renderBreadcrumbs(path)
+{
+    const breadcrumbs = document.getElementById("breadcrumbs");
+
+    breadcrumbs.innerHTML = "";
+
+    const home = document.createElement("button");
+
+    home.textContent = "Home";
+
+    home.addEventListener("click", () => {
+        navigateTo("");
+    });
+
+    breadcrumbs.appendChild(home);
+
+    //If our path is null or empty
+    if (!path)
+    {
+        return;
+    }
+
+    const segments = path.split("/");
+    let currentPath = "";
+
+    segments.forEach(segment => {
+        if (!currentPath)
+        {
+            currentPath = segment;
+        }
+        else
+        {
+            currentPath = currentPath + "/" + segment;
+        }
+        const breadcrumbPath = currentPath;
+
+        //Create a new button when clicked maps to thier respective directory
+        const newButton = document.createElement("button");
+        newButton.textContent = segment;
+
+        newButton.addEventListener("click", () => {
+            navigateTo(breadcrumbPath);
+        });
+        breadcrumbs.appendChild(newButton)
+    });
+
+
+}
+
 
 
 const params = new URLSearchParams(window.location.search);
