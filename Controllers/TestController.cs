@@ -1,19 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
+using TestProject.Services;
 
-namespace TestProject.Controllers {
-    [ApiController]
-    [Route("[controller]")]
-    public class TestController : ControllerBase {
+namespace TestProject.Controllers;
 
-        private readonly ILogger<TestController> _logger;
+[ApiController]
+[Route("api/files")]
+public class FileController : ControllerBase
+{
+    private readonly FileService _fileService;
 
-        public TestController(ILogger<TestController> logger) {
-            _logger = logger;
-        }
-
-        [HttpGet]
-        public string Get() {
-            return "API Response";
-        }
+    public FileController(FileService fileService)
+    {
+        _fileService = fileService;
     }
 }
