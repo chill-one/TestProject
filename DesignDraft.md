@@ -224,6 +224,25 @@ We can also add.
 
 This is where I will create the `loadFiles()` function which will fetch from the endpoint `/api/files` using `fetch()`and convert the response into JSON.
 
+**How will I render the file?**
+1. Find #file-list 
+    
+    Use `document.getElementById()`
+2. Clear its existing contents
+
+3. Loop through the new data
+4. Create an HTML element for each FileItem
+
+    Use `document.createElement()`
+5. Put its name/type/size on the element 
+
+    Use `element.textContent = ...`
+6. Append it to #file-list
+
+    Use `parent.appendChild()`
+
+The logic for this will be inside `renderFiles(data);` function.
+
 
 
 
