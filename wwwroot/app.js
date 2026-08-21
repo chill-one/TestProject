@@ -19,10 +19,7 @@ async function loadFiles(path = "") {
         console.error('Fetch failed:', error);
     }
 }
-const params = new URLSearchParams(window.location.search);
-const initialPath = params.get("path") ?? "";
 
-loadFiles(initialPath);
 
 function renderItems(data) {
     const fileList = document.getElementById("file-list");
@@ -81,3 +78,17 @@ function naviageTo(path)
 
     loadFiles(path)
 }
+
+
+const params = new URLSearchParams(window.location.search);
+const initialPath = params.get("path") ?? "";
+
+loadFiles(initialPath);
+
+//The popsate fires when the user uses the back/forward button
+window.addEventListener("popstate", () => {
+    const params = new URLSearchParams(window.location.search);
+    const path = params.get("path") ?? "";
+
+    loadFiles(path);
+});
