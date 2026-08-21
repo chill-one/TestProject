@@ -243,6 +243,49 @@ This is where I will create the `loadFiles()` function which will fetch from the
 
 The logic for this will be inside `renderItems(data);` function.
 
+**Folder Navigation**
+-
+We want:
+
+    Click Projects
+        ↓
+    GET /api/files?path=Projects
+        ↓
+    render contents of Projects
+
+
+A change we can make is make `loadFiles()` accept a path.
+
+    loadFiles("")
+        → root
+
+    loadFiles("Projects")
+        → Projects folder
+
+    loadFiles("Projects/somefile")
+        → nested folder
+
+The API URL needs to become something like:
+
+    /api/files?path=Projects
+
+Because paths can contain **spaces** and **special characters**. Manually concatenating the raw path is **Not an option**.
+For this we can use 
+
+`encodeURLComponent(path)` 
+- Converts a string variable named path into a URL-safe format by escaping special characters.
+
+Example:
+
+    const searchPhrase = "cats? & dogs";
+
+    console.log(encodeURIComponent(searchPhrase));
+    // Output: cats%3F%20%26%20dogs
+
+The browser would think `?` and `&` were code instructions for a new website route.
+
+
+
 
 
 
