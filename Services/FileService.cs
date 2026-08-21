@@ -106,6 +106,10 @@ public class FileService
 
     public List<FileItem> SearchDirectory(string relativePath, string query)
     {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return new List<FileItem>();
+        }
         string normalizedFullPath = ResolvePath(relativePath);
 
         DirectoryInfo directory = new DirectoryInfo(normalizedFullPath);
