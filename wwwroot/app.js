@@ -1,7 +1,10 @@
-async function loadFiles() {
+async function loadFiles(path = "") {
     try 
     {
-        const response = await fetch("/api/files");
+        //Turns the path into a URL-safe format
+        const response = await fetch(
+            `/api/files?path=${encodeURIComponent(path)}`
+        );
 
         if(!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
