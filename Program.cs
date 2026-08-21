@@ -24,6 +24,7 @@ namespace TestProject {
 
             app.UseHttpsRedirection();
 
+            app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.MapControllers();
