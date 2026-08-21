@@ -61,6 +61,8 @@ function renderItems(data) {
     });
 }
 
+
+
 function navigateTo(path)
 {
     const url = new URL(window.location);
@@ -142,4 +144,41 @@ window.addEventListener("popstate", () => {
     const path = params.get("path") ?? "";
 
     loadFiles(path);
+});
+
+
+const searchForm = document.getElementById("search-form");
+const searchInput = document.getElementById("search-input");
+
+searchForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const query = searchInput.value.trim();
+
+    // Get current directory from URL
+    const params = new URLSearchParams(window.location.search);
+    const path = params.get("path") ?? "";
+
+    //if the query is an empty string send them to the path
+    if (!query) {
+        loadFiles(path);
+        return;
+    }
+
+    try
+    {
+        // Call search API
+        const response = await fetch(
+            `/api/files/search?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`
+            );
+        // Convert response to JSON
+        const data = await response.json();
+
+        // Render results
+        renderItems(data);
+    }
+    catch (error)
+    {
+        console.error("Search failed:", error);
+    }
 });
