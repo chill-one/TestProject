@@ -61,7 +61,30 @@ function renderItems(data) {
     });
 }
 
+function navigateSearch(path, query)
+{
+    const url = new URL(window.location);
 
+    if (path)
+    {
+        url.searchParams.set("path", path);
+    }
+    else
+    {
+        url.searchParams.delete("path");
+    }
+
+    if (query)
+    {
+        url.searchParams.set("search", query);
+    }
+    else
+    {
+        url.searchParams.delete("search");
+    }
+
+    window.history.pushState({}, "", url);
+}
 
 function navigateTo(path)
 {
