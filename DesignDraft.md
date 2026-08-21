@@ -398,6 +398,8 @@ rather than depending entirely on a filesystem wildcard.
 `file\dir.Name.Contains(query, StringComparison.OrdinalIgnoreCase)` 
 - To make the search case-insensitive.
 
+`SearchOption.AllDirectores` has a problem which is, on a real filesystem if can throw if it reaches a directory the process cannot acess.
+
 
 
 
