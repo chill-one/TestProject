@@ -241,7 +241,7 @@ This is where I will create the `loadFiles()` function which will fetch from the
 
     Use `parent.appendChild()`
 
-The logic for this will be inside `renderFiles(data);` function.
+The logic for this will be inside `renderItems(data);` function.
 
 
 

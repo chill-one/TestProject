@@ -9,7 +9,7 @@ async function loadFiles() {
 
         const data = await response.json();
         
-        console.log(data);
+        renderItems(data)
     }
     catch (error)
     {
@@ -18,3 +18,36 @@ async function loadFiles() {
 }
 
 loadFiles();
+
+
+function renderItems(data) {
+    const fileList = document.getElementById("file-list");
+
+    //Clear its existing contents
+    fileList.innerHTML = '';
+
+    //Loop through the new file/dic data
+    data.forEach(item => {
+        
+        //create an html element for each fileitem
+        const newListItem = document.createElement('li');
+        
+
+        //We dont have size when its a Directory
+        if (item.type === "Directory")
+        {
+            newListItem.textContent = 
+            `${item.name} 
+            (${item.type})`;
+        }
+        else
+        {
+            newListItem.textContent =
+            `${item.name} 
+            (${item.type}) - 
+            ${item.size} bytes`;
+        }
+
+        fileList.appendChild(newListItem);
+    });
+}
