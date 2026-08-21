@@ -360,7 +360,32 @@ I will use `path.split('\')` to split at `\` of the path which will provide us w
 
 From thier loop through each segments and create a button to thier respective path.
 
+The logic for this is in the function `renderBreadcrumbs(path)`.
 
+
+**Search functionality**
+-
+**Design choice**
+
+if am currently inside
+
+    Projects/
+
+and search for 'report'
+
+1. Search look only at the items directly inside Projects
+2. Recursively search everything underneath the current directory
+
+For this i will got with option **number 2** as searching the filesytem for the file/directory recursively would provide the use more info, if such file/directory they are looking for exist further down the root and can directly traverse to it via **Search**.
+
+we can use `directory.GetFiles("report.pdf", SearchOption.AllDirectores)` to recursively look underneath the current directory.
+However this locks the search to exact filename(report.pdf).
+
+A better desgin would be to create `SearchDirectory(relativePath, query)` where we recursively enumerate items and decide ourselves whether 
+
+    item.Name contains query
+
+rather than depending entirely on a filesystem wildcard.
 
 
 
