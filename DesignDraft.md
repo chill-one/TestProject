@@ -219,6 +219,11 @@ We can also add.
 - This middleware tells ASP.NET when someone requests a direcotory such as `GET /`, look for a default file such as **index.html**.
 - **Does not actually send index.html** to the browser which would contradict with the spec, It only figures out which default file should be used.
 
+**app.js**
+
+
+This is where I will create the `loadFiles()` function which will fetch from the endpoint `/api/files` using `fetch()`and convert the response into JSON.
+
 
 
 
