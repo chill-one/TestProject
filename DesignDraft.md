@@ -290,6 +290,48 @@ Making Directories clickable
 
 To make a directory clickable we can create a click handler inside `renderItems()`. Only the directory should be clickable.
 
+We can reuse `loadFiles(path)` which works naturally as the backend is already returning paths relative to the configured home directory.
+
+**We have a problem which is once you enter a folder, you can't go back.**
+Which is one of the specs where we needs to be deep-linkable and stored in the URL.
+
+Deep-linkable
+-
+A "deep linkable" page, screen, or piece of content is one that can be directly opened using a specific web address or link, instead of forcing the user to start at a home page or a main menu.
+
+    Root
+    https://localhost:7146/
+
+    Click Projects
+    https://localhost:7146/?path=Projects
+
+    Click PulseWatch
+    https://localhost:7146/?path=Projects%2FPulseWatch
+
+
+and 
+
+        Refresh page
+            ↓
+    read path from URL
+            ↓
+    load same directory
+
+In my current process clicking a directory does: `loadFiles(item.path)`  which loads the folder, however does not change the browser URL.
+
+
+To turn `https://localhost:7146/` into `https://localhost:7146/?path=Projects` we can use:
+
+`url.searchParams.set("path", path);`
+- Gives JavaScript an object representing the URL.
+
+What if the current path contains illegal characters:
+- `URLSearchParams` handles it.
+
+`history.pushState()` 
+- changes the URL without refreshing the entire page.
+
+
 
 
 
