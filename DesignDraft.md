@@ -285,6 +285,11 @@ Example:
 The browser would think `?` and `&` were code instructions for a new website route.
 
 
+Making Directories clickable
+-
+
+To make a directory clickable we can create a click handler inside `renderItems()`. Only the directory should be clickable.
+
 
 
 
