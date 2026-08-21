@@ -342,6 +342,15 @@ One problem we have right now is loading the inital folder from the URL as of ri
     //Use root if null else use the given url
     loadFiles(initialPath);
 
+**We have a bug**
+
+Project/PulseWatch
+
+Clicking the browser **Back Button**, the URL will change back to Projects, while the page still displays PulseWatch files/folders.
+
+Reason
+- `pushState()` changes history, but we haven't told JavaScript what to do when the user navigates through the history. For this reason the browser gives us a `popstate` event to resolve this kind of issue.
+
 
 
 
