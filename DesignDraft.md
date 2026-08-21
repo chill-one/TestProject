@@ -388,6 +388,15 @@ A better desgin would be to create `SearchDirectory(relativePath, query)` where 
 rather than depending entirely on a filesystem wildcard.
 
 
+`directory.EnumerateDirectories("*",SearchOption.AllDirectories)`
+- Returns a `DirectoryInfo` objects that are nested within the current directory recursively.
+
+
+`directory.EnumerateFiles("*",SearchOption.AllDirectories)`
+- Returns a `FileInfo` objects that are nested within the current directory recursively.
+
+`file\dir.Name.Contains(query, StringComparison.OrdinalIgnoreCase)` 
+- To make the search case-insensitive.
 
 
 
