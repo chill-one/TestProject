@@ -401,6 +401,32 @@ rather than depending entirely on a filesystem wildcard.
 `SearchOption.AllDirectores` has a problem which is, on a real filesystem if can throw if it reaches a directory the process cannot acess.
 
 
+Designing the search endpoints
+-
+The Controller will have another function for search called `Search()` which is very similer to `Browse()` only thing different is `Search()` calls `_fileService.SearchDirectory(path, query)` and follows the same structure for error handling.
+
+
+For frontend we will have a search bar where the user can type the file/directory they are looking for under the current directory. Using the `searchForm.addEventListner()` we can create a event where following will take place.
+
+    submit search 
+        ↓
+    prevent normal page refresh 
+        ↓
+    read search input 
+        ↓
+    figure out current directory
+        ↓
+    call /api/files/search
+        ↓
+    render results
+
+Right now, if you search for 'report' inside the directory Projects the URL still looks like `/?path=Projects` what we want is `/?path=Projects&search=report` so the URL becomes the source of **Truth for both** 
+
+    Current Folder
+    Current Search
+
+For this we will create a `navigateSearch()` similar to `navigateTo()` in our app.js.
+
 
 
 
