@@ -202,6 +202,28 @@ I can use the `NotFound()` helper method within the controller and return an HTT
 
 Similary I can use `StatusCode(StatusCode.Status403Forbidden)` for the `UnauthorizedAcessException`.
 
+**Connect frontend to the API**
+-
+
+JavaScript should render the UI, while the **server** returns data than server-rendered HTML as specified in the spec.
+
+Right now the file **Program.cs** has 
+
+`app.UseStaticFiles()`
+- This middleware allows the browser access files inside wwroot.
+- Without `app.UseStaticFiles()`, having files inside wwroot be itself doesn't amke them availabel to the browser.
+
+We can also add.
+
+`app.UseDefaultFiles()`
+- This middleware tells ASP.NET when someone requests a direcotory such as `GET /`, look for a default file such as **index.html**.
+- **Does not actually send index.html** to the browser which would contradict with the spec, It only figures out which default file should be used.
+
+
+
+
+
+
 
 
 
