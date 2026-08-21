@@ -352,6 +352,15 @@ Reason
 - `pushState()` changes history, but we haven't told JavaScript what to do when the user navigates through the history. For this reason the browser gives us a `popstate` event to resolve this kind of issue.
 
 
+Creating breadcrumb
+-
+Create a navigation line which tracks where the user currently is 
+
+I will use `path.split('\')` to split at `\` of the path which will provide us with the nested folder.
+
+From thier loop through each segments and create a button to thier respective path.
+
+
 
 
 
