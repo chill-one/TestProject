@@ -164,4 +164,20 @@ public class FileService
         return result;
     }
 
+
+    public FileStream OpenDownload(string relativePath)
+    {
+        string normalizedFullPath = ResolvePath(relativePath);
+
+        if (!File.Exists(normalizedFullPath))
+        {
+            throw new FileNotFoundException(
+                "Could not find the file with the given path."
+            );
+        }
+
+        // Returns the file stream for reading
+        return File.OpenRead(normalizedFullPath);
+    }
+
 }
