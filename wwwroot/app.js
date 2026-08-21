@@ -19,9 +19,7 @@ async function loadFiles(path = "") {
         console.error('Fetch failed:', error);
     }
 }
-
 loadFiles();
-
 
 function renderItems(data) {
     const fileList = document.getElementById("file-list");
@@ -42,6 +40,13 @@ function renderItems(data) {
             newListItem.textContent = 
             `${item.name} 
             (${item.type})`;
+
+            //Create buttons for directory
+            newListItem.addEventListener("click",
+                () => {
+                    loadFiles(item.path);
+                }
+            )
         }
         else
         {
