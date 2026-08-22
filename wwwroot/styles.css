@@ -58,8 +58,6 @@ button {
 
 #file-list li {
     display: grid;
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
     grid-template-columns: minmax(180px, 2fr) 100px 100px 150px auto;
     gap: 12px;
     align-items: center;
