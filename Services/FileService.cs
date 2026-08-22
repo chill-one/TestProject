@@ -83,40 +83,42 @@ public class FileService
             );
         }
 
-        List<FileItem> items = new List<FileItem>();
+        List<FileItem> directories = new();
+        List<FileItem> files = new();
 
-        //Get the directories info - Return folder first
-        foreach (DirectoryInfo dir in directory.GetDirectories())
+        foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos())
         {
-            items.Add(
-                new FileItem
-                {
-                    Name = dir.Name,
-                    Path = GetRelativeClientPath(dir.FullName),
-                    Type = FileItemType.Directory,
-                    Size = null,
-                    LastModifiedDate = dir.LastWriteTimeUtc
-                }
-            );
+            if (item is DirectoryInfo dir)
+            {
+                directories.Add(
+                    new FileItem
+                    {
+                        Name = dir.Name,
+                        Path = GetRelativeClientPath(dir.FullName),
+                        Type = FileItemType.Directory,
+                        LastModifiedDate = dir.LastWriteTimeUtc,
+                        Size = null
+                    }
+                );
+            }
+            else if (item is FileInfo file)
+            {
+                files.Add(
+                    new FileItem
+                    {
+                        Name = file.Name,
+                        Path = GetRelativeClientPath(file.FullName),
+                        Type = FileItemType.File,
+                        LastModifiedDate = file.LastWriteTimeUtc,
+                        Size = file.Length
+                    }
+                );
+            }
         }
 
-        //Get the files info
-        foreach (FileInfo file in directory.GetFiles())
-        {
-            items.Add(
-                new FileItem
-                {
-                    Name = file.Name,
-                    Size = file.Length,
-                    Path = GetRelativeClientPath(file.FullName),
-                    LastModifiedDate = file.LastWriteTimeUtc,
-                    Type = FileItemType.File
-                }
-            );
-        }
+        directories.AddRange(files);
 
-        return items;
-
+        return directories;
     }
 
     /// <summary>Finds matching files and folders anywhere below a directory.</summary>
@@ -125,10 +127,6 @@ public class FileService
     /// <returns>All matching items, or an empty list for a blank query.</returns>
     public List<FileItem> SearchDirectory(string relativePath, string query)
     {
-        if (string.IsNullOrWhiteSpace(query))
-        {
-            return new List<FileItem>();
-        }
         string normalizedFullPath = ResolvePath(relativePath);
 
         DirectoryInfo directory = new DirectoryInfo(normalizedFullPath);
@@ -138,6 +136,11 @@ public class FileService
             throw new DirectoryNotFoundException(
                 "Could not find the Directory with the given path."
             );
+        }
+
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return new List<FileItem>();
         }
 
         List<FileItem> result = new List<FileItem>();
