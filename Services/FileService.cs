@@ -180,4 +180,47 @@ public class FileService
         return File.OpenRead(normalizedFullPath);
     }
 
+
+    public async Task UploadFile(string relativeDirectoryPath, string fileName, Stream fileStream)
+    {
+        string normalizedDirectoryPath = ResolvePath(relativeDirectoryPath);
+
+        DirectoryInfo directory = new DirectoryInfo(normalizedDirectoryPath);
+
+        // Check directory exists
+        if (!directory.Exists)
+        {
+            throw new DirectoryNotFoundException(
+                "Could not find the Directory with the given path."
+            );
+        }
+
+
+        // Sanitize filename
+        string safeFileName = Path.GetFileName(fileName);
+
+        if (string.IsNullOrWhiteSpace(safeFileName))
+        {
+            throw new ArgumentException(
+                "The uploaded file must have a valid filename."
+            );
+        }
+
+        // Build destination path
+        string destinationPath = Path.Combine(normalizedDirectoryPath, safeFileName);
+
+        //File already exists
+        if (File.Exists(destinationPath))
+        {
+            throw new IOException(
+                "A file with the same name already exists."
+            );
+        }
+
+        await using FileStream destinationStream = File.Create(destinationPath);
+        //Asynchronously copys the uploaded stream into the destinationStream
+        await fileStream.CopyToAsync(destinationStream);
+
+    }
+
 }
