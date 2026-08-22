@@ -19,9 +19,28 @@ function cancelActiveSearch()
     }
 }
 
+/** Creates a text span for one piece of file metadata. */
+function createTextSpan(text)
+{
+    const span = document.createElement("span");
+    span.textContent = text;
+    return span;
+}
+
+/** Adds a file item's name, type, size, and modified date to a list item. */
+function appendItemDetails(listItem, item, displayName)
+{
+    listItem.append(
+        createTextSpan(displayName),
+        createTextSpan(item.type),
+        createTextSpan(formatBytes(item.size)),
+        createTextSpan(formatDate(item.lastModifiedDate))
+    );
+}
 
 /** Loads a directory from the API and refreshes the file browser. */
 async function loadFiles(path = "") {
+    cancelActiveSearch();
     try 
     {
         // Turn the path into a URL-safe format.
@@ -67,13 +86,11 @@ function renderItems(data, showPath = false) {
         const newListItem = document.createElement('li');
         
 
-        // Directories do not include a size in this view.
         if (item.type === "Directory")
         {
             // Show the full path in search results for extra context.
             const displayName = showPath ? item.path : item.name;
-            newListItem.textContent = 
-            `${displayName} (${item.type}) - ${formatBytes(item.size)} - Modified: ${formatDate(item.lastModifiedDate)}`;
+            appendItemDetails(newListItem, item, displayName);
 
             // Create a button for the directory.
             newListItem.addEventListener("click",
@@ -85,8 +102,7 @@ function renderItems(data, showPath = false) {
         else
         {
             const displayName = showPath ? item.path : item.name;
-            newListItem.textContent =
-            `${displayName} (${item.type}) - ${formatBytes(item.size)} - Modified: ${formatDate(item.lastModifiedDate)}`;
+            appendItemDetails(newListItem, item, displayName);
 
             const downloadButton = document.createElement("button");
             downloadButton.textContent = "Download";
@@ -344,7 +360,13 @@ function formatDate(dateString)
     }
     const date = new Date(dateString);
 
-    return date.toLocaleDateString();
+    return date.toLocaleString([], {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit"
+    });
 }
 
 
