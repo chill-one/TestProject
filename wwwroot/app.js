@@ -1,6 +1,9 @@
 const searchForm = document.getElementById("search-form");
 const searchInput = document.getElementById("search-input");
 
+const uploadForm = document.getElementById("upload-form");
+const fileInput = document.getElementById("file-input");
+
 
 async function loadFiles(path = "") {
     try 
@@ -264,4 +267,46 @@ searchForm.addEventListener("submit", (event) => {
     //SearchFiles
     searchFiles(path, query);
 
+});
+
+
+uploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const file = fileInput.files[0];
+
+    if(!file){
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const path = params.get("path") ?? "";
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    try
+    {
+        //Post the data to the backend
+        const response = await fetch(
+            `/api/files/upload?path=${encodeURIComponent(path)}`,
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        if(!response.ok) {
+            throw new Error(`Http error! status: ${response.status}`);
+        }
+
+        //empty the input
+        fileInput.value = "";
+        navigateTo(path);
+    }
+    catch (error)
+    {
+        console.error("Upload failed:", error);
+    }
 });
