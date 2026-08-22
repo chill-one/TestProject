@@ -20,11 +20,11 @@ public class FileController : ControllerBase
     /// <summary>Returns the contents of the requested directory.</summary>
     /// <param name="path">Directory path relative to the configured home directory.</param>
     [HttpGet]
-    public ActionResult<List<FileItem>> Browse([FromQuery] string path = "")
+    public ActionResult<List<FileItem>> Browse([FromQuery] string path = "", CancellationToken cancellationToken = default)
     {
         try
         {
-            List<FileItem> items = _fileService.BrowseDirectory(path);
+            List<FileItem> items = _fileService.BrowseDirectory(path, cancellationToken);
             return Ok(items);
         }
         catch (DirectoryNotFoundException)
