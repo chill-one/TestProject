@@ -375,23 +375,6 @@ function formatDate(dateString)
 }
 
 
-
-const params = new URLSearchParams(window.location.search);
-const initialPath = params.get("path") ?? "";
-const initialSearch = params.get("search") ?? "";
-
-if (initialSearch)
-{
-
-    // Populate the input.
-    searchInput.value = initialSearch;
-    searchFiles(initialPath, initialSearch);
-}
-else
-{
-    loadFiles(initialPath);
-}
-
 // The popstate event fires when the user uses the back/forward buttons.
 window.addEventListener("popstate", () => {
     const params = new URLSearchParams(window.location.search);
@@ -483,3 +466,20 @@ uploadForm.addEventListener("submit", async (event) => {
         console.error("Upload failed:", error);
     }
 });
+
+const params = new URLSearchParams(window.location.search);
+const initialPath = params.get("path") ?? "";
+const initialSearch = params.get("search") ?? "";
+
+if (initialSearch)
+{
+
+    // Populate the input.
+    searchInput.value = initialSearch;
+    searchFiles(initialPath, initialSearch);
+}
+else
+{
+    loadFiles(initialPath);
+}
+
