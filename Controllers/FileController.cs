@@ -83,8 +83,16 @@ public class FileController : ControllerBase
     /// <summary>Downloads a file from the configured home directory.</summary>
     /// <param name="path">File path relative to the configured home directory.</param>
     [HttpGet("download")]
-    public IActionResult Download([FromQuery] string path)
+    public IActionResult Download([FromQuery] string? path)
     {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return BadRequest(new
+            {
+                error = "A file path is required."
+            });
+        }
+
         try
         {
             FileStream stream = _fileService.OpenDownload(path);
@@ -121,7 +129,7 @@ public class FileController : ControllerBase
     /// <param name="path">Destination directory relative to the configured home directory.</param>
     /// <param name="file">The file received from the request.</param>
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload([FromQuery] string? path, IFormFile file)
+    public async Task<IActionResult> Upload([FromQuery] string? path, IFormFile? file)
     {
         if (file == null || file.Length == 0)
         {
