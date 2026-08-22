@@ -62,7 +62,7 @@ function renderItems(data) {
             newListItem.textContent =
             `${item.name} 
             (${item.type}) - 
-            ${formatBytes(item.size)} bytes`;
+            ${formatBytes(item.size)}`;
 
             const downloadButton = document.createElement("button");
             downloadButton.textContent = "Download";
@@ -202,7 +202,7 @@ function renderSummary(items)
     const fileLabel = fileCount === 1 ? "file" : "files";
 
     const summary = document.getElementById("summary");
-    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${formatBytes(totalSize)} bytes`;
+    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${formatBytes(totalSize)}`;
 }
 
 
