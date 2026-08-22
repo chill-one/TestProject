@@ -14,17 +14,17 @@ public class FileService
     {
         string normalizedHomeDirectory = Path.GetFullPath(homeDirectory);
 
-        if (!normalizedHomeDirectory.EndsWith(Path.DirectorySeparatorChar))
-        {
-            normalizedHomeDirectory += Path.DirectorySeparatorChar;
-        }
-
         //Check if the given home directory exists.
         if (!Directory.Exists(normalizedHomeDirectory))
-{
+        {
             throw new DirectoryNotFoundException(
                 "The configured home directory does not exist."
             );
+        }
+
+        if (!normalizedHomeDirectory.EndsWith(Path.DirectorySeparatorChar))
+        {
+            normalizedHomeDirectory += Path.DirectorySeparatorChar;
         }
 
         _homeDirectory = normalizedHomeDirectory;
@@ -248,6 +248,9 @@ public class FileService
 
     }
 
+    /// <summary>Converts a server path into a browser-friendly relative path.</summary>
+    /// <param name="fullPath">The absolute path inside the home directory.</param>
+    /// <returns>A relative path using forward slashes.</returns>
     private string GetRelativeClientPath(string fullPath)
     {
         string relativePath =
