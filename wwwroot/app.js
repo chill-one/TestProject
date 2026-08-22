@@ -260,6 +260,11 @@ function renderSummary(items, includeDirectorySizes = true)
 /** Converts a byte count into a short, readable size. */
 function formatBytes(bytes)
 {
+    if (bytes == null || Number.isNaN(bytes))
+    {
+        return "—";
+    }
+
     if (bytes === 0)
     {
         return "0 bytes";
@@ -322,7 +327,7 @@ async function searchFiles(path, query)
     catch (error)
     {
         // Ignore errors caused by cancelling the search.
-        if (error.name == "AbortError")
+        if (error.name === "AbortError")
         {
             return;
         }
