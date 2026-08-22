@@ -19,6 +19,14 @@ public class FileService
             normalizedHomeDirectory += Path.DirectorySeparatorChar;
         }
 
+        //Check if the given home directory exists.
+        if (!Directory.Exists(normalizedHomeDirectory))
+{
+            throw new DirectoryNotFoundException(
+                "The configured home directory does not exist."
+            );
+        }
+
         _homeDirectory = normalizedHomeDirectory;
 
     }
@@ -33,12 +41,19 @@ public class FileService
     {
         string normalizedPath = Path.Combine(_homeDirectory, relativePath);
         string normalizedFullPath = Path.GetFullPath(normalizedPath);
+
+        StringComparison comparison = OperatingSystem.IsWindows()
+                                        ? StringComparison.OrdinalIgnoreCase
+                                            : StringComparison.Ordinal;
+
+        string rootPath =  Path.TrimEndingDirectorySeparator(_homeDirectory);
+        
         
         //If the prefix of the current full path is not the same as home dir its not inside
         //If the current normalizedFullPath is the same as _homeDirectory except the last Separator its root
-        if (normalizedFullPath == Path.TrimEndingDirectorySeparator(_homeDirectory)
+        if (normalizedFullPath.Equals(rootPath, comparison)
             ||
-            normalizedFullPath.StartsWith(_homeDirectory))
+            normalizedFullPath.StartsWith(_homeDirectory, comparison))
         {
             return normalizedFullPath;
         }
@@ -77,7 +92,7 @@ public class FileService
                 new FileItem
                 {
                     Name = dir.Name,
-                    Path = Path.GetRelativePath(_homeDirectory, dir.FullName),
+                    Path = GetRelativeClientPath(dir.FullName),
                     Type = FileItemType.Directory,
                     Size = null,
                     LastModifiedDate = dir.LastWriteTimeUtc
@@ -93,7 +108,7 @@ public class FileService
                 {
                     Name = file.Name,
                     Size = file.Length,
-                    Path = Path.GetRelativePath(_homeDirectory, file.FullName),
+                    Path = GetRelativeClientPath(file.FullName),
                     LastModifiedDate = file.LastWriteTimeUtc,
                     Type = FileItemType.File
                 }
@@ -138,7 +153,7 @@ public class FileService
                     {
                         Name = file.Name,
                         Size = file.Length,
-                        Path = Path.GetRelativePath(_homeDirectory, file.FullName),
+                        Path = GetRelativeClientPath(file.FullName),
                         LastModifiedDate = file.LastWriteTimeUtc,
                         Type = FileItemType.File
                     }
@@ -155,7 +170,7 @@ public class FileService
                     new FileItem
                     {
                         Name = dir.Name,
-                        Path = Path.GetRelativePath(_homeDirectory, dir.FullName),
+                        Path = GetRelativeClientPath(dir.FullName),
                         Type = FileItemType.Directory,
                         Size = null,
                         LastModifiedDate = dir.LastWriteTimeUtc
@@ -221,18 +236,27 @@ public class FileService
         // Build destination path
         string destinationPath = Path.Combine(normalizedDirectoryPath, safeFileName);
 
-        //File already exists
-        if (File.Exists(destinationPath))
-        {
-            throw new IOException(
-                "A file with the same name already exists."
+        await using FileStream destinationStream =
+            new FileStream(
+                destinationPath,
+                FileMode.CreateNew,
+                FileAccess.Write,
+                FileShare.None
             );
-        }
 
-        await using FileStream destinationStream = File.Create(destinationPath);
-        //Asynchronously copys the uploaded stream into the destinationStream
         await fileStream.CopyToAsync(destinationStream);
 
+    }
+
+    private string GetRelativeClientPath(string fullPath)
+    {
+        string relativePath =
+            Path.GetRelativePath(_homeDirectory, fullPath);
+
+        return relativePath.Replace(
+            Path.DirectorySeparatorChar,
+            '/'
+        );
     }
 
 }
