@@ -133,7 +133,7 @@ public class FileService
     /// <param name="relativePath">The directory to search, relative to the home directory.</param>
     /// <param name="query">Text to find in file and folder names.</param>
     /// <returns>All matching items, or an empty list for a blank query.</returns>
-    public List<FileItem> SearchDirectory(string relativePath, string query)
+    public List<FileItem> SearchDirectory(string relativePath, string query, CancellationToken cancellationToken)
     {
         string normalizedFullPath = ResolvePath(relativePath);
 
@@ -165,6 +165,8 @@ public class FileService
         //Finds every files and folders nested inside this directory recursively.
         foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos("*", options))
         {
+            //User can cancle if they wish too.
+            cancellationToken.ThrowIfCancellationRequested();
             // 1. Does item.Name match query?
             if(!item.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
             {
