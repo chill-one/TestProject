@@ -142,42 +142,45 @@ public class FileService
 
         List<FileItem> result = new List<FileItem>();
 
-        //Finds every files nested inside this directory recursively.
-        foreach(FileInfo file in directory.EnumerateFiles("*", SearchOption.AllDirectories))
+        //Finds every files and folders nested inside this directory recursively.
+        foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos("*",SearchOption.AllDirectories))
         {
-
-            if(file.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            // 1. Does item.Name match query?
+            if(!item.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+            
+            // 2. Is item a FileInfo?
+            if (item is FileInfo file)
             {
                 result.Add(
                     new FileItem
                     {
                         Name = file.Name,
-                        Size = file.Length,
                         Path = GetRelativeClientPath(file.FullName),
+                        Type = FileItemType.File,
                         LastModifiedDate = file.LastWriteTimeUtc,
-                        Type = FileItemType.File
+                        Size = file.Length
                     }
                 );
             }
-    
-        }
-        //Get all the directory inside the given path
-        foreach(DirectoryInfo dir in directory.EnumerateDirectories("*", SearchOption.AllDirectories))
-        {
-            if(dir.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            else if (item is DirectoryInfo dir)
             {
+            // 3. Is item a DirectoryInfo?
                 result.Add(
                     new FileItem
                     {
                         Name = dir.Name,
                         Path = GetRelativeClientPath(dir.FullName),
                         Type = FileItemType.Directory,
-                        Size = null,
-                        LastModifiedDate = dir.LastWriteTimeUtc
-                        
+                        LastModifiedDate = dir.LastWriteTimeUtc,
+                        Size = null
                     }
                 );
+
             }
+        
         }
 
         return result;
