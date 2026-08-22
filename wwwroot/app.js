@@ -219,7 +219,7 @@ function renderSummary(items)
     const fileLabel = fileCount === 1 ? "file" : "files";
 
     const summary = document.getElementById("summary");
-    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${formatBytes(totalSize)}`;
+    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • Visible file size: ${formatBytes(totalSize)}`;
 }
 
 
