@@ -71,4 +71,39 @@ public class FileController : ControllerBase
         }
     }
 
+    [HttpGet("download")]
+    public IActionResult Download([FromQuery] string path)
+    {
+        try
+        {
+            FileStream stream = _fileService.OpenDownload(path);
+            string fileName = Path.GetFileName(path);
+
+            //application/octet-stream simply tells the browser this is an arbitrary binary file data
+            return File(
+                stream,
+                "application/octet-stream",
+                fileName
+            );
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound(new
+            {
+                error = "The requested file was not found."
+            }
+            );
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                new
+                {
+                    error = "Access to the requested path is not allowed."
+                }
+                );
+        }
+    }
+
 }
