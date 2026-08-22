@@ -86,7 +86,15 @@ public class FileService
         List<FileItem> directories = new();
         List<FileItem> files = new();
 
-        foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos())
+        //Ignore files with higher persmisson and symlinks
+        EnumerationOptions options = new EnumerationOptions
+        {
+            RecurseSubdirectories = false,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        };
+
+        foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos("*", options))
         {
             if (item is DirectoryInfo dir)
             {
@@ -145,8 +153,17 @@ public class FileService
 
         List<FileItem> result = new List<FileItem>();
 
+
+        //Ignore files that have permission requriement and skip symbolic links/junction-like entries
+        EnumerationOptions options = new EnumerationOptions
+        {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        };
+
         //Finds every files and folders nested inside this directory recursively.
-        foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos("*",SearchOption.AllDirectories))
+        foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos("*", options))
         {
             // 1. Does item.Name match query?
             if(!item.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
