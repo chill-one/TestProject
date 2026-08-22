@@ -106,4 +106,68 @@ public class FileController : ControllerBase
         }
     }
 
+    [HttpPost("upload")]
+    public async Task<IActionResult> Upload([FromQuery] string path, IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new
+            {
+                error = "No file was provided."
+            });
+        }
+
+
+        try
+        {
+            string fileName = Path.GetFileName(file.FileName);
+
+            using Stream stream = file.OpenReadStream();
+
+            await _fileService.UploadFile(path, fileName, stream);
+
+            return Ok();
+
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new
+            {
+                error = "The requested directory was not found."
+            }
+            );
+        }
+        catch (ArgumentException)
+        {
+            return StatusCode(
+                StatusCodes.Status400BadRequest,
+                new
+                {
+                    error = "The uploaded file must have a valid filename."
+                }
+                );
+        }
+        catch (IOException)
+        {
+            return StatusCode(
+                StatusCodes.Status409Conflict,
+                new
+                {
+                    error = "A file with the same name already exists."
+                }
+                );
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                new
+                {
+                    error = "Access to the requested path is not allowed."
+                }
+                );
+        }
+    }
+
+
 }
