@@ -60,3 +60,12 @@ button {
 #file-list li:hover {
     background: #f7f7f7;
 }
+
+#file-list li {
+    display: grid;
+    grid-template-columns: minmax(180px, 2fr) 100px 100px 150px auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
