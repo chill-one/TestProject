@@ -641,6 +641,13 @@ A stronger version is to create the file using `FileMode.CreateNew()`.
 The upload will go to whatever directory the user is currently browsing.
 
 
+File/Folder counts and size summary
+-
+For this i will add a summary above the current directory on how many files and folder exists in this directory.
+
+The logic for this will be inside `renderSummary()`.
+
+
 
 
 
