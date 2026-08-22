@@ -12,6 +12,7 @@ public class FileService
     /// <param name="homeDirectory">The only part of the filesystem this service may access.</param>
     public FileService(string homeDirectory)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(homeDirectory);
         string normalizedHomeDirectory = Path.GetFullPath(homeDirectory);
 
         // Check that the configured home directory exists.
@@ -39,6 +40,7 @@ public class FileService
     /// <exception cref="UnauthorizedAccessException">Thrown when the path leaves the home directory.</exception>
     private string ResolvePath(string relativePath)
     {
+        ArgumentNullException.ThrowIfNull(relativePath);
         string normalizedPath = Path.Combine(_homeDirectory, relativePath);
         string normalizedFullPath = Path.GetFullPath(normalizedPath);
 
