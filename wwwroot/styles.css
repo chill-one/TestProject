@@ -24,7 +24,7 @@ h1 {
     margin-bottom: 14px;
 }
 
-.toolbar input[type="text"] {
+.toolbar input[type="search"] {
     flex: 1;
     max-width: 420px;
 }
@@ -52,17 +52,14 @@ button {
     margin: 0;
 }
 
-#file-list li {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-}
-
 #file-list li:hover {
     background: #f7f7f7;
 }
 
 #file-list li {
     display: grid;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
     grid-template-columns: minmax(180px, 2fr) 100px 100px 150px auto;
     gap: 12px;
     align-items: center;
