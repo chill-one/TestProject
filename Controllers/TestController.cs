@@ -10,11 +10,15 @@ public class FileController : ControllerBase
 {
     private readonly FileService _fileService;
 
+    /// <summary>Creates the controller with its file service dependency.</summary>
+    /// <param name="fileService">Service used for filesystem operations.</param>
     public FileController(FileService fileService)
     {
         _fileService = fileService;
     }
 
+    /// <summary>Returns the contents of the requested directory.</summary>
+    /// <param name="path">Directory path relative to the configured home directory.</param>
     [HttpGet]
     public ActionResult<List<FileItem>> Browse([FromQuery] string path = "")
     {
@@ -43,6 +47,9 @@ public class FileController : ControllerBase
         }
     }
 
+    /// <summary>Searches for files and folders below the requested directory.</summary>
+    /// <param name="path">Directory path relative to the configured home directory.</param>
+    /// <param name="query">Text to find in item names.</param>
     [HttpGet("search")]
     public ActionResult<List<FileItem>> Search([FromQuery] string path = "", [FromQuery] string query = "")
     {
@@ -71,6 +78,8 @@ public class FileController : ControllerBase
         }
     }
 
+    /// <summary>Downloads a file from the configured home directory.</summary>
+    /// <param name="path">File path relative to the configured home directory.</param>
     [HttpGet("download")]
     public IActionResult Download([FromQuery] string path)
     {
@@ -106,6 +115,9 @@ public class FileController : ControllerBase
         }
     }
 
+    /// <summary>Uploads a file into the requested directory.</summary>
+    /// <param name="path">Destination directory relative to the configured home directory.</param>
+    /// <param name="file">The file received from the request.</param>
     [HttpPost("upload")]
     public async Task<IActionResult> Upload([FromQuery] string? path, IFormFile file)
     {
