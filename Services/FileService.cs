@@ -199,7 +199,7 @@ public class FileService
                         Path = GetRelativeClientPath(dir.FullName),
                         Type = FileItemType.Directory,
                         LastModifiedDate = dir.LastWriteTimeUtc,
-                        Size = null
+                        Size = CalculateDirectorySize(dir, cancellationToken)
                     }
                 );
 
