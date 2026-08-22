@@ -19,6 +19,7 @@ public class FileController : ControllerBase
 
     /// <summary>Returns the contents of the requested directory.</summary>
     /// <param name="path">Directory path relative to the configured home directory.</param>
+    /// <param name="cancellationToken">Token used to stop the browse if the request is cancelled.</param>
     [HttpGet]
     public ActionResult<List<FileItem>> Browse([FromQuery] string path = "", CancellationToken cancellationToken = default)
     {
