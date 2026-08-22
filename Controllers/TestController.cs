@@ -107,7 +107,7 @@ public class FileController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload([FromQuery] string path, IFormFile file)
+    public async Task<IActionResult> Upload([FromQuery] string? path, IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
@@ -120,11 +120,13 @@ public class FileController : ControllerBase
 
         try
         {
+            string relativePath = path ?? "";
+
             string fileName = Path.GetFileName(file.FileName);
 
             using Stream stream = file.OpenReadStream();
 
-            await _fileService.UploadFile(path, fileName, stream);
+            await _fileService.UploadFile(relativePath, fileName, stream);
 
             return Ok();
 
