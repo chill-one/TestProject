@@ -2,6 +2,8 @@ using TestProject.Services;
 
 namespace TestProject {
     public class Program {
+        /// <summary>Starts the file browser web application.</summary>
+        /// <param name="args">Command-line arguments supplied by the host.</param>
         public static void Main(string[] args) {
             var builder = WebApplication.CreateBuilder(args);
 
