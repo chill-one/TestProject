@@ -10,10 +10,19 @@ namespace TestProject {
             builder.Services.AddControllers();
 
             // Add services to the container.
-            string homeDirectory = builder.Configuration["FileBrowser:HomeDirectory"]
+            string configuredHomeDirectory = builder.Configuration["FileBrowser:HomeDirectory"]
                                           ?? throw new InvalidOperationException(
                                             "FileBrowser:HomeDirectory is not configured."
                                           );
+
+
+            // Combines the project root path with the given relative path 
+            string homeDirectory = Path.IsPathRooted(configuredHomeDirectory)
+                ? configuredHomeDirectory
+                : Path.Combine(
+                    builder.Environment.ContentRootPath,
+                    configuredHomeDirectory
+                );
 
             builder.Services.AddScoped<FileService>(_ =>
             {
