@@ -70,10 +70,10 @@ function renderItems(data, showPath = false) {
         //We dont have size when its a Directory
         if (item.type === "Directory")
         {
+            //if this is for search show path which gives more context
             const displayName = showPath ? item.path : item.name;
             newListItem.textContent = 
-            `${displayName} 
-            (${item.type})`;
+            `${displayName} (${item.type}) - ${formatBytes(item.size)}`;
 
             //Create buttons for directory
             newListItem.addEventListener("click",
@@ -208,7 +208,7 @@ function renderBreadcrumbs(path)
 }
 
 /** Shows the folder count, file count, and total size for a result set. */
-function renderSummary(items)
+function renderSummary(items, includeDirectorySizes = true)
 {
     let fileCount = 0;
     let directoryCount = 0;
@@ -219,12 +219,17 @@ function renderSummary(items)
         if (item.type === "Directory")
         {
             directoryCount++;
+            if(includeDirectorySizes)
+            {
+                totalSize += item.size ?? 0;
+            }
         }
         else
         {
             fileCount++;
             totalSize += item.size ?? 0;
         }
+
     });
 
     //Handle siguler/plural 
@@ -232,7 +237,9 @@ function renderSummary(items)
     const fileLabel = fileCount === 1 ? "file" : "files";
 
     const summary = document.getElementById("summary");
-    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • Visible file size: ${formatBytes(totalSize)}`;
+
+    const sizelable = includeDirectorySizes ? "Total size" : "Matched file size";
+    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${sizelable} ${formatBytes(totalSize)}`;
 }
 
 
@@ -292,7 +299,7 @@ async function searchFiles(path, query)
         //Show the bread crumbs
         renderBreadcrumbs(path)
         //Add the summary
-        renderSummary(data);
+        renderSummary(data, false);
         // Render results with thier path
         renderItems(data, true);
 
