@@ -40,7 +40,7 @@ async function loadFiles(path = "") {
 
 
 /** Renders files and folders, including their available actions. */
-function renderItems(data) {
+function renderItems(data, showPath = false) {
     const fileList = document.getElementById("file-list");
 
     //Clear its existing contents
@@ -56,8 +56,9 @@ function renderItems(data) {
         //We dont have size when its a Directory
         if (item.type === "Directory")
         {
+            const displayName = showPath ? item.path : item.name;
             newListItem.textContent = 
-            `${item.name} 
+            `${displayName} 
             (${item.type})`;
 
             //Create buttons for directory
@@ -69,8 +70,9 @@ function renderItems(data) {
         }
         else
         {
+            const displayName = showPath ? item.path : item.name;
             newListItem.textContent =
-            `${item.name} 
+            `${displayName} 
             (${item.type}) - 
             ${formatBytes(item.size)}`;
 
@@ -268,8 +270,8 @@ async function searchFiles(path, query)
         renderBreadcrumbs(path)
         //Add the summary
         renderSummary(data);
-        // Render results
-        renderItems(data);
+        // Render results with thier path
+        renderItems(data, true);
     }
     catch (error)
     {
