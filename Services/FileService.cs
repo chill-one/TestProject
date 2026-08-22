@@ -68,7 +68,7 @@ public class FileService
     /// </summary>
     /// <param name="relativePath">The directory path relative to the home directory.</param>
     /// <returns>The directory contents, with folders listed before files.</returns>
-    public List<FileItem> BrowseDirectory(string relativePath)
+    public List<FileItem> BrowseDirectory(string relativePath, CancellationToken cancellationToken)
     {
 
         string normalizedFullPath = ResolvePath(relativePath);
@@ -105,7 +105,8 @@ public class FileService
                         Path = GetRelativeClientPath(dir.FullName),
                         Type = FileItemType.Directory,
                         LastModifiedDate = dir.LastWriteTimeUtc,
-                        Size = null
+                        //Recursivly calculate all the files size under this dir
+                        Size = CalculateDirectorySize(dir, cancellationToken)
                     }
                 );
             }
