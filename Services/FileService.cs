@@ -288,4 +288,25 @@ public class FileService
         );
     }
 
+    private long CalculateDirectorySize(DirectoryInfo directory, CancellationToken cancellationToken)
+    {
+        long totalSize = 0;
+
+        EnumerationOptions options = new()
+        {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        };
+
+        //Recursively go through the nested directory
+        foreach(FileInfo file in directory.EnumerateFiles("*", options))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            totalSize += file.Length;
+        }
+
+        return totalSize;
+    }
+
 }
