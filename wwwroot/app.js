@@ -62,7 +62,7 @@ function renderItems(data) {
             newListItem.textContent =
             `${item.name} 
             (${item.type}) - 
-            ${item.size} bytes`;
+            ${formatBytes(item.size)} bytes`;
 
             const downloadButton = document.createElement("button");
             downloadButton.textContent = "Download";
@@ -202,9 +202,29 @@ function renderSummary(items)
     const fileLabel = fileCount === 1 ? "file" : "files";
 
     const summary = document.getElementById("summary");
-    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${totalSize} bytes`;
+    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${formatBytes(totalSize)} bytes`;
 }
 
+
+function formatBytes(bytes)
+{
+    if (bytes === 0)
+    {
+        return "0 bytes";
+    }
+
+    const units = ["bytes", "KB", "MB", "GB", "TB"];
+    let unitIndex = 0;
+    let size = bytes;
+
+    while (size >= 1024 && unitIndex < units.length - 1)
+    {
+        size /= 1024;
+        unitIndex++;
+    }
+
+    return `${size.toFixed(1)} ${units[unitIndex]}`;
+}
 
 
 async function searchFiles(path, query) 
@@ -237,6 +257,10 @@ async function searchFiles(path, query)
     }
     
 }
+
+
+
+
 
 
 
