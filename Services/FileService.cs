@@ -5,7 +5,7 @@ namespace TestProject.Services;
 public class FileService
 {
 
-    //Where am i allowed to access
+    // Defines the part of the filesystem this service may access.
     private readonly string _homeDirectory;
 
     /// <summary>Creates a service rooted at the configured home directory.</summary>
@@ -14,7 +14,7 @@ public class FileService
     {
         string normalizedHomeDirectory = Path.GetFullPath(homeDirectory);
 
-        //Check if the given home directory exists.
+        // Check that the configured home directory exists.
         if (!Directory.Exists(normalizedHomeDirectory))
         {
             throw new DirectoryNotFoundException(
@@ -49,8 +49,7 @@ public class FileService
         string rootPath =  Path.TrimEndingDirectorySeparator(_homeDirectory);
         
         
-        //If the prefix of the current full path is not the same as home dir its not inside
-        //If the current normalizedFullPath is the same as _homeDirectory except the last Separator its root
+        // Reject paths outside the home directory, while still allowing the root itself.
         if (normalizedFullPath.Equals(rootPath, comparison)
             ||
             normalizedFullPath.StartsWith(_homeDirectory, comparison))
@@ -67,6 +66,7 @@ public class FileService
     /// Lists the files and folders directly inside a directory.
     /// </summary>
     /// <param name="relativePath">The directory path relative to the home directory.</param>
+    /// <param name="cancellationToken">Token used to stop a long-running browse.</param>
     /// <returns>The directory contents, with folders listed before files.</returns>
     public List<FileItem> BrowseDirectory(string relativePath, CancellationToken cancellationToken)
     {
@@ -87,40 +87,24 @@ public class FileService
         List<FileItem> files = new();
 
         //Ignore files with higher persmisson and symlinks
-        EnumerationOptions options = new EnumerationOptions
-        {
-            RecurseSubdirectories = false,
-            IgnoreInaccessible = true,
-            AttributesToSkip = FileAttributes.ReparsePoint
-        };
+        EnumerationOptions options = CreateEnumerationOptions(false);
 
         foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos("*", options))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (item is DirectoryInfo dir)
             {
                 directories.Add(
-                    new FileItem
-                    {
-                        Name = dir.Name,
-                        Path = GetRelativeClientPath(dir.FullName),
-                        Type = FileItemType.Directory,
-                        LastModifiedDate = dir.LastWriteTimeUtc,
-                        //Recursivly calculate all the files size under this dir
-                        Size = CalculateDirectorySize(dir, cancellationToken)
-                    }
+                    CreateDirectoryItem(
+                        dir,
+                        CalculateDirectorySize(dir, cancellationToken)
+                    )
                 );
             }
             else if (item is FileInfo file)
             {
                 files.Add(
-                    new FileItem
-                    {
-                        Name = file.Name,
-                        Path = GetRelativeClientPath(file.FullName),
-                        Type = FileItemType.File,
-                        LastModifiedDate = file.LastWriteTimeUtc,
-                        Size = file.Length
-                    }
+                    CreateFileItem(file)
                 );
             }
         }
@@ -128,6 +112,43 @@ public class FileService
         directories.AddRange(files);
 
         return directories;
+    }
+
+    /// <summary>Adds a file's size to each parent directory up to the search root.</summary>
+    /// <param name="file">The file whose size should be counted.</param>
+    /// <param name="searchRoot">The directory where size accumulation stops.</param>
+    /// <param name="directorySizes">The directory size totals being updated.</param>
+    /// <param name="pathComparer">The comparer used for filesystem paths.</param>
+    private void AccumulateDirectorySizes(FileInfo file, string searchRoot, Dictionary<string, long> directorySizes, StringComparer pathComparer)
+    {
+        DirectoryInfo? currentDirectory = file.Directory;
+
+        while (currentDirectory != null)
+        {
+            string currentPath =
+                Path.TrimEndingDirectorySeparator(
+                    currentDirectory.FullName
+                );
+
+            if (directorySizes.TryGetValue(
+                currentPath,
+                out long currentSize))
+            {
+                directorySizes[currentPath] =
+                    currentSize + file.Length;
+            }
+            else
+            {
+                directorySizes[currentPath] = file.Length;
+            }
+
+            if (pathComparer.Equals(currentPath, searchRoot))
+            {
+                break;
+            }
+
+            currentDirectory = currentDirectory.Parent;
+        }
     }
 
     /// <summary>Finds matching files and folders anywhere below a directory.</summary>
@@ -154,58 +175,80 @@ public class FileService
         }
 
         List<FileItem> result = new List<FileItem>();
+        List<DirectoryInfo> matchingDirectories = new();
+
+        StringComparer pathComparer =
+                OperatingSystem.IsWindows()
+            ? StringComparer.OrdinalIgnoreCase
+            : StringComparer.Ordinal;
+
+        // Trim the trailing separator to mark where the search should stop.
+        string searchRoot = Path.TrimEndingDirectorySeparator(normalizedFullPath);
+
+        Dictionary<string, long> directorySizes = new Dictionary<string, long>(pathComparer);
 
 
-        //Ignore files that have permission requriement and skip symbolic links/junction-like entries
-        EnumerationOptions options = new EnumerationOptions
-        {
-            RecurseSubdirectories = true,
-            IgnoreInaccessible = true,
-            AttributesToSkip = FileAttributes.ReparsePoint
-        };
+        // Ignore inaccessible entries and skip symbolic links and junctions.
+        EnumerationOptions options = CreateEnumerationOptions(true);
 
-        //Finds every files and folders nested inside this directory recursively.
+        // Find every file and folder nested inside this directory recursively.
         foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos("*", options))
         {
-            //User can cancle if they wish too.
+            // Allow the caller to cancel a long-running search.
             cancellationToken.ThrowIfCancellationRequested();
-            // 1. Does item.Name match query?
-            if(!item.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
             
-            // 2. Is item a FileInfo?
+            // Handle files.
             if (item is FileInfo file)
             {
-                result.Add(
-                    new FileItem
-                    {
-                        Name = file.Name,
-                        Path = GetRelativeClientPath(file.FullName),
-                        Type = FileItemType.File,
-                        LastModifiedDate = file.LastWriteTimeUtc,
-                        Size = file.Length
-                    }
-                );
+
+                AccumulateDirectorySizes(file,searchRoot,directorySizes,pathComparer);
+
+                if(file.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.Add(
+                        CreateFileItem(file)
+                    );
+                }
             }
             else if (item is DirectoryInfo dir)
             {
-            // 3. Is item a DirectoryInfo?
-                result.Add(
-                    new FileItem
-                    {
-                        Name = dir.Name,
-                        Path = GetRelativeClientPath(dir.FullName),
-                        Type = FileItemType.Directory,
-                        LastModifiedDate = dir.LastWriteTimeUtc,
-                        Size = CalculateDirectorySize(dir, cancellationToken)
-                    }
-                );
+                // Handle directories.
+                string directoryPath = Path.TrimEndingDirectorySeparator(dir.FullName);
+
+                // Include empty directories with a size of zero.
+                directorySizes.TryAdd(directoryPath, 0);
+
+                // Save matching directories until their sizes are known.
+                if(dir.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+                {
+                    matchingDirectories.Add(dir);
+                }
 
             }
         
         }
+
+        // Add matching directories after their sizes have been calculated.
+        foreach (DirectoryInfo dir in matchingDirectories)
+        {
+            // There may be thousands of matching directories.
+            cancellationToken.ThrowIfCancellationRequested();
+            string directoryPath =
+                Path.TrimEndingDirectorySeparator(
+                    dir.FullName
+                );
+
+            // Get the calculated size for this directory.
+            directorySizes.TryGetValue(
+                directoryPath,
+                out long size
+            );
+
+            result.Add(
+                CreateDirectoryItem(dir, size)
+            );
+        }
+
 
         return result;
     }
@@ -241,7 +284,7 @@ public class FileService
 
         DirectoryInfo directory = new DirectoryInfo(normalizedDirectoryPath);
 
-        // Check directory exists
+        // Check that the destination directory exists.
         if (!directory.Exists)
         {
             throw new DirectoryNotFoundException(
@@ -250,7 +293,7 @@ public class FileService
         }
 
 
-        // Sanitize filename
+        // Keep only the filename and discard any client-provided directory segments.
         string safeFileName = Path.GetFileName(fileName);
 
         if (string.IsNullOrWhiteSpace(safeFileName))
@@ -260,7 +303,7 @@ public class FileService
             );
         }
 
-        // Build destination path
+        // Build the destination path.
         string destinationPath = Path.Combine(normalizedDirectoryPath, safeFileName);
 
         await using FileStream destinationStream =
@@ -289,18 +332,62 @@ public class FileService
         );
     }
 
+    /// <summary>Builds the API model for a file.</summary>
+    /// <param name="file">The filesystem file to represent.</param>
+    /// <returns>A file item with client-safe path and metadata.</returns>
+    private FileItem CreateFileItem(FileInfo file)
+    {
+        return new FileItem
+        {
+            Name = file.Name,
+            Path = GetRelativeClientPath(file.FullName),
+            Type = FileItemType.File,
+            LastModifiedDate = file.LastWriteTimeUtc,
+            Size = file.Length
+        };
+    }
+
+
+    /// <summary>Builds the API model for a directory.</summary>
+    /// <param name="directory">The filesystem directory to represent.</param>
+    /// <param name="size">The directory's calculated size in bytes.</param>
+    /// <returns>A directory item with client-safe path and metadata.</returns>
+    private FileItem CreateDirectoryItem(DirectoryInfo directory, long size)
+    {
+        return new FileItem
+        {
+            Name = directory.Name,
+            Path = GetRelativeClientPath(directory.FullName),
+            Type = FileItemType.Directory,
+            LastModifiedDate = directory.LastWriteTimeUtc,
+            Size = size
+        };
+    }
+
+    /// <summary>Creates safe filesystem enumeration settings.</summary>
+    /// <param name="recursive">Whether nested directories should be included.</param>
+    /// <returns>Enumeration settings that skip inaccessible entries and links.</returns>
+    private EnumerationOptions CreateEnumerationOptions(bool recursive)
+    {
+        return new EnumerationOptions
+        {
+            RecurseSubdirectories = recursive,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        };
+    }
+
+    /// <summary>Calculates the total size of all files below a directory.</summary>
+    /// <param name="directory">The directory whose contents should be measured.</param>
+    /// <param name="cancellationToken">Token used to stop the calculation.</param>
+    /// <returns>The total size of the directory's files in bytes.</returns>
     private long CalculateDirectorySize(DirectoryInfo directory, CancellationToken cancellationToken)
     {
         long totalSize = 0;
 
-        EnumerationOptions options = new()
-        {
-            RecurseSubdirectories = true,
-            IgnoreInaccessible = true,
-            AttributesToSkip = FileAttributes.ReparsePoint
-        };
+        EnumerationOptions options = CreateEnumerationOptions(true);
 
-        //Recursively go through the nested directory
+        // Recursively walk through the nested directories.
         foreach(FileInfo file in directory.EnumerateFiles("*", options))
         {
             cancellationToken.ThrowIfCancellationRequested();
