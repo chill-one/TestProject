@@ -73,7 +73,7 @@ function renderItems(data, showPath = false) {
             // Show the full path in search results for extra context.
             const displayName = showPath ? item.path : item.name;
             newListItem.textContent = 
-            `${displayName} (${item.type}) - ${formatBytes(item.size)}`;
+            `${displayName} (${item.type}) - ${formatBytes(item.size)} - Modified: ${formatDate(item.lastModifiedDate)}`;
 
             // Create a button for the directory.
             newListItem.addEventListener("click",
@@ -86,9 +86,7 @@ function renderItems(data, showPath = false) {
         {
             const displayName = showPath ? item.path : item.name;
             newListItem.textContent =
-            `${displayName} 
-            (${item.type}) - 
-            ${formatBytes(item.size)}`;
+            `${displayName} (${item.type}) - ${formatBytes(item.size)} - Modified: ${formatDate(item.lastModifiedDate)}`;
 
             const downloadButton = document.createElement("button");
             downloadButton.textContent = "Download";
@@ -238,8 +236,8 @@ function renderSummary(items, includeDirectorySizes = true)
 
     const summary = document.getElementById("summary");
 
-    const sizelable = includeDirectorySizes ? "Total size" : "Matched file size";
-    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${sizelable} ${formatBytes(totalSize)}`;
+    const sizeLabel = includeDirectorySizes ? "Total size" : "Matched file size";
+    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${sizeLabel} ${formatBytes(totalSize)}`;
 }
 
 
@@ -337,7 +335,17 @@ function clearStatus()
     statusElement.textContent = "";
 }
 
+/** Formats an API date as a short, local calendar date. */
+function formatDate(dateString)
+{
+    if(!dateString)
+    {
+        return "";
+    }
+    const date = new Date(dateString);
 
+    return date.toLocaleDateString();
+}
 
 
 
