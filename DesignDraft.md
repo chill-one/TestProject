@@ -620,6 +620,26 @@ Thier is a race condition after this
 `File.Create()` can overwrite an existing file, so request B could overwrite A.
 A stronger version is to create the file using `FileMode.CreateNew()`.
 
+**Frontend**
+
+    User chooses report.pdf
+            ↓
+    submit form
+            ↓
+    read current directory from URL
+            ↓
+    create FormData
+            ↓
+    put file into FormData using key "file"
+            ↓
+    POST /api/files/upload?path=Projects
+            ↓
+    backend saves file
+            ↓
+    refresh current directory
+
+
+
 
 
 
