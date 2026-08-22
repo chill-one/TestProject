@@ -29,13 +29,14 @@ async function loadFiles(path = "") {
         renderBreadcrumbs(path);
         renderSummary(data);
         renderItems(data);
+
+        clearStatus();
     }
     catch (error)
     {   
         showStatus(error.message);
         console.error('Fetch failed:', error);
     }
-    clearStatus();
 }
 
 
@@ -272,13 +273,14 @@ async function searchFiles(path, query)
         renderSummary(data);
         // Render results with thier path
         renderItems(data, true);
+
+        clearStatus();
     }
     catch (error)
     {
         showStatus(error.message);
         console.error("Search failed:", error);
     }
-    clearStatus();
 }
 
 /** Displays a status message below the file browser. */
