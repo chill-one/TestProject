@@ -50,6 +50,7 @@ public class FileController : ControllerBase
     /// <summary>Searches for files and folders below the requested directory.</summary>
     /// <param name="path">Directory path relative to the configured home directory.</param>
     /// <param name="query">Text to find in item names.</param>
+    /// <param name="cancellationToken">Token used to stop the search if the request is cancelled.</param>
     [HttpGet("search")]
     public ActionResult<List<FileItem>> Search([FromQuery] string path = "", [FromQuery] string query = "", CancellationToken cancellationToken = default)
     {
