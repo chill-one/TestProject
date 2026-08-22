@@ -59,6 +59,17 @@ function renderItems(data) {
             `${item.name} 
             (${item.type}) - 
             ${item.size} bytes`;
+
+            const downloadButton = document.createElement("button");
+            downloadButton.textContent = "Download";
+
+            //if clicked on download directly go to the url which will download the file
+            downloadButton.addEventListener("click", () => {
+                window.location.href =
+                    `/api/files/download?path=${encodeURIComponent(item.path)}`;
+            });
+
+            newListItem.appendChild(downloadButton);
         }
 
         fileList.appendChild(newListItem);
