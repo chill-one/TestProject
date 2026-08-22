@@ -11,7 +11,7 @@ let activeSearchController = null;
 /** Stops the search currently running, if there is one. */
 function cancelActiveSearch()
 {
-    //Abort the current active search
+    // Abort the current active search.
     if (activeSearchController)
     {
         activeSearchController.abort();
@@ -24,7 +24,7 @@ function cancelActiveSearch()
 async function loadFiles(path = "") {
     try 
     {
-        //Turns the path into a URL-safe format
+        // Turn the path into a URL-safe format.
         const response = await fetch(
             `/api/files?path=${encodeURIComponent(path)}`
         );
@@ -57,25 +57,25 @@ async function loadFiles(path = "") {
 function renderItems(data, showPath = false) {
     const fileList = document.getElementById("file-list");
 
-    //Clear its existing contents
+    // Clear its existing contents.
     fileList.innerHTML = '';
 
-    //Loop through the new file/dic data
+    // Loop through the new file and directory data.
     data.forEach(item => {
         
-        //create an html element for each fileitem
+        // Create an HTML element for each file item.
         const newListItem = document.createElement('li');
         
 
-        //We dont have size when its a Directory
+        // Directories do not include a size in this view.
         if (item.type === "Directory")
         {
-            //if this is for search show path which gives more context
+            // Show the full path in search results for extra context.
             const displayName = showPath ? item.path : item.name;
             newListItem.textContent = 
             `${displayName} (${item.type}) - ${formatBytes(item.size)}`;
 
-            //Create buttons for directory
+            // Create a button for the directory.
             newListItem.addEventListener("click",
                 () => {
                     navigateTo(item.path);
@@ -93,7 +93,7 @@ function renderItems(data, showPath = false) {
             const downloadButton = document.createElement("button");
             downloadButton.textContent = "Download";
 
-            //if clicked on download directly go to the url which will download the file
+            // Download the file when the button is clicked.
             downloadButton.addEventListener("click", () => {
                 window.location.href =
                     `/api/files/download?path=${encodeURIComponent(item.path)}`;
@@ -147,10 +147,10 @@ function navigateTo(path)
         url.searchParams.delete("path");
     }
 
-    //Remove search param regardless of whether the destination is root
+    // Remove the search parameter when navigating.
     url.searchParams.delete("search");
     searchInput.value = "";
-    //Change the url without refreshing the entire page
+    // Change the URL without refreshing the entire page.
     window.history.pushState({}, "", url);
 
     loadFiles(path);
@@ -173,13 +173,13 @@ function renderBreadcrumbs(path)
 
     breadcrumbs.appendChild(home);
 
-    //If our path is null or empty
+    // If the path is null or empty, only show Home.
     if (!path)
     {
         return;
     }
 
-    //may need to change this later
+    // Build one breadcrumb for each path segment.
     const segments = path.split("/");
     let currentPath = "";
 
@@ -194,7 +194,7 @@ function renderBreadcrumbs(path)
         }
         const breadcrumbPath = currentPath;
 
-        //Create a new button when clicked maps to thier respective directory
+        // Create a button that opens the corresponding directory.
         const newButton = document.createElement("button");
         newButton.textContent = segment;
 
@@ -232,7 +232,7 @@ function renderSummary(items, includeDirectorySizes = true)
 
     });
 
-    //Handle siguler/plural 
+    // Handle singular and plural labels.
     const folderLabel = directoryCount === 1 ? "folder" : "folders";
     const fileLabel = fileCount === 1 ? "file" : "files";
 
@@ -273,11 +273,11 @@ async function searchFiles(path, query)
     const controller = new AbortController();
     activeSearchController = controller;
 
-    showStatus("Searching....");
+    showStatus("Searching...");
 
     try
     {
-        // Call search API
+        // Call the search API.
         const response = await fetch(
             `/api/files/search?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`,
             {
@@ -293,21 +293,21 @@ async function searchFiles(path, query)
                 errorData.error ?? `HTTP error! status: ${response.status}`
             );
         }
-        // Convert response to JSON
+        // Convert the response to JSON.
         const data = await response.json();
 
-        //Show the bread crumbs
+        // Show the breadcrumbs.
         renderBreadcrumbs(path)
-        //Add the summary
+        // Add the summary.
         renderSummary(data, false);
-        // Render results with thier path
+        // Render results with their paths.
         renderItems(data, true);
 
         clearStatus();
     }
     catch (error)
     {
-        //For search cancel
+        // Ignore errors caused by cancelling the search.
         if (error.name == "AbortError")
         {
             return;
@@ -317,7 +317,7 @@ async function searchFiles(path, query)
     }
     finally
     {
-        //Only clean up if am still the active request
+        // Clean up only if this is still the active request.
         if (activeSearchController === controller)
         {
             activeSearchController = null;
@@ -348,7 +348,7 @@ const initialSearch = params.get("search") ?? "";
 if (initialSearch)
 {
 
-    //populate the input
+    // Populate the input.
     searchInput.value = initialSearch;
     searchFiles(initialPath, initialSearch);
 }
@@ -357,7 +357,7 @@ else
     loadFiles(initialPath);
 }
 
-//The popsate fires when the user uses the back/forward button
+// The popstate event fires when the user uses the back/forward buttons.
 window.addEventListener("popstate", () => {
     const params = new URLSearchParams(window.location.search);
     const path = params.get("path") ?? "";
@@ -382,21 +382,21 @@ searchForm.addEventListener("submit", (event) => {
 
     const query = searchInput.value.trim();
 
-    // Get current directory from URL
+    // Get the current directory from the URL.
     const params = new URLSearchParams(window.location.search);
     const path = params.get("path") ?? "";
 
-    //if the query is an empty string send them to the path
+    // If the query is empty, return to the current directory.
     if (!query) {
         navigateSearch(path, "");
         loadFiles(path);
         return;
     }
 
-    //Update URL
+    // Update the URL.
     navigateSearch(path, query);
 
-    //SearchFiles
+    // Search the files.
     searchFiles(path, query);
 
 });
@@ -420,7 +420,7 @@ uploadForm.addEventListener("submit", async (event) => {
 
     try
     {
-        //Post the data to the backend
+        // Post the data to the backend.
         const response = await fetch(
             `/api/files/upload?path=${encodeURIComponent(path)}`,
             {
@@ -438,7 +438,7 @@ uploadForm.addEventListener("submit", async (event) => {
         }
         
         clearStatus();
-        //empty the input
+        // Empty the input.
         fileInput.value = "";
         navigateTo(path);
     }
