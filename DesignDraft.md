@@ -638,6 +638,8 @@ A stronger version is to create the file using `FileMode.CreateNew()`.
             ↓
     refresh current directory
 
+The upload will go to whatever directory the user is currently browsing.
+
 
 
 
