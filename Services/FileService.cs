@@ -8,6 +8,8 @@ public class FileService
     //Where am i allowed to access
     private readonly string _homeDirectory;
 
+    /// <summary>Creates a service rooted at the configured home directory.</summary>
+    /// <param name="homeDirectory">The only part of the filesystem this service may access.</param>
     public FileService(string homeDirectory)
     {
         string normalizedHomeDirectory = Path.GetFullPath(homeDirectory);
@@ -22,12 +24,11 @@ public class FileService
     }
 
     /// <summary>
-    /// Validates the given relativePath to make sure its either the root or
-    /// inside the root directory.
+    /// Converts a relative path to an absolute path inside the home directory.
     /// </summary>
     /// <param name="relativePath">The path to the file or directory.</param>
-    /// <returns>The normalized absolute path of the given relative path.</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when the requested path is outside the configured home direcotry.</exception>
+    /// <returns>The normalized absolute path.</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when the path leaves the home directory.</exception>
     private string ResolvePath(string relativePath)
     {
         string normalizedPath = Path.Combine(_homeDirectory, relativePath);
@@ -48,11 +49,10 @@ public class FileService
     }
 
     /// <summary>
-    /// Browses the filesystem at relativePath and grabs filesystem items inside the 
-    /// relativepath.
+    /// Lists the files and folders directly inside a directory.
     /// </summary>
-    /// <param name="relativePath">The location of the file/directory</param>
-    /// <returns>list of fileItem</returns>
+    /// <param name="relativePath">The directory path relative to the home directory.</param>
+    /// <returns>The directory contents, with folders listed before files.</returns>
     public List<FileItem> BrowseDirectory(string relativePath)
     {
 
@@ -104,6 +104,10 @@ public class FileService
 
     }
 
+    /// <summary>Finds matching files and folders anywhere below a directory.</summary>
+    /// <param name="relativePath">The directory to search, relative to the home directory.</param>
+    /// <param name="query">Text to find in file and folder names.</param>
+    /// <returns>All matching items, or an empty list for a blank query.</returns>
     public List<FileItem> SearchDirectory(string relativePath, string query)
     {
         if (string.IsNullOrWhiteSpace(query))
@@ -165,6 +169,10 @@ public class FileService
     }
 
 
+    /// <summary>Opens a file for downloading.</summary>
+    /// <param name="relativePath">The file path relative to the home directory.</param>
+    /// <returns>A readable stream for the requested file.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the file does not exist.</exception>
     public FileStream OpenDownload(string relativePath)
     {
         string normalizedFullPath = ResolvePath(relativePath);
@@ -181,6 +189,10 @@ public class FileService
     }
 
 
+    /// <summary>Saves an uploaded file in an existing directory.</summary>
+    /// <param name="relativeDirectoryPath">The destination directory relative to the home directory.</param>
+    /// <param name="fileName">The name to use for the uploaded file.</param>
+    /// <param name="fileStream">The stream containing the file data.</param>
     public async Task UploadFile(string relativeDirectoryPath, string fileName, Stream fileStream)
     {
         string normalizedDirectoryPath = ResolvePath(relativeDirectoryPath);
