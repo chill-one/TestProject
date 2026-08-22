@@ -20,6 +20,7 @@ async function loadFiles(path = "") {
         const data = await response.json();
         
         renderBreadcrumbs(path);
+        renderSummary(data);
         renderItems(data);
     }
     catch (error)
@@ -177,6 +178,35 @@ function renderBreadcrumbs(path)
 
 }
 
+function renderSummary(items)
+{
+    let fileCount = 0;
+    let directoryCount = 0;
+    let totalSize = 0;
+
+    items.forEach(item => {
+        
+        if (item.type === "Directory")
+        {
+            directoryCount++;
+        }
+        else
+        {
+            fileCount++;
+            totalSize += item.size ?? 0;
+        }
+    });
+
+    //Handle siguler/plural 
+    const folderLabel = directoryCount === 1 ? "folder" : "folders";
+    const fileLabel = fileCount === 1 ? "file" : "files";
+
+    const summary = document.getElementById("summary");
+    summary.textContent =`${directoryCount} ${folderLabel} • ${fileCount} ${fileLabel} • ${totalSize} bytes`;
+}
+
+
+
 async function searchFiles(path, query) 
 {
 
@@ -196,7 +226,8 @@ async function searchFiles(path, query)
 
         //Show the bread crumbs
         renderBreadcrumbs(path)
-
+        //Add the summary
+        renderSummary(data);
         // Render results
         renderItems(data);
     }
