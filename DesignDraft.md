@@ -494,8 +494,8 @@ For checking if a file exists we can use `File.Exists()` and for reading a File 
 The logic for this will be in function `OpenDownload()`.
 
 
-Frontend
--
+**Frontend**
+
 Right now file render as
 
     hello.txt (File) - 6 bytes
@@ -505,6 +505,88 @@ for download we want something like
     hello.txt (File) - 6 bytes  [Download]
 
 We can add this inside `renderItems()` after setting the textContent, For this simply creating a button and than attach a click handler should do it.
+
+
+Upload
+-
+flow will look lik this 
+
+    User is currently inside:
+    Projects/
+
+            ↓
+
+    Chooses:
+    report.pdf
+
+            ↓
+
+    Browser sends:
+    POST /api/files/upload?path=Projects
+
+            ↓
+
+    FileController
+
+            ↓
+
+    FileService
+
+            ↓
+
+    ResolvePath("Projects")
+
+            ↓
+
+    Save file as:
+    Projects/report.pdf
+
+            ↓
+
+    Frontend refreshes directory
+
+The backend needs two pieces of information which is
+- Which directory should receive this file
+- What file is being uploaded (its name + contents)
+
+For HTTP uploads, ASP.Net provides `IFormFile` which provides things like:
+
+    file.FileName
+    file.Length
+    file.OpenReadStream()
+    file.CopyToAsync(...)
+
+
+One secruity problem arises when we assign the given file.FileName into the file.
+
+for example if the uploaded filname is:
+
+    ../../evil.txt
+
+we want to reduce it to
+
+    evil.txt
+
+For this we can just use `Path.GetFileName(file.FileName)` hence the flow will look like:
+
+    destination path from frontend
+            ↓
+    ResolvePath(destinationPath)
+            ↓
+    verify destination is a directory
+            ↓
+    uploaded filename
+            ↓
+    Path.GetFileName(file.FileName)
+            ↓
+    combine safe directory + safe filename
+            ↓
+    save file
+
+
+What if the file we are uploading already exits.
+
+For this i would Reject the Upload and send 409 Conflict as opposed to silently **overwriting** someone's existing file.
 
 
 
