@@ -645,7 +645,9 @@ File/Folder counts and size summary
 -
 For this i will add a summary above the current directory on how many files and folder exists in this directory.
 
-The logic for this will be inside `renderSummary()`.
+The logic for this will be inside `renderSummary()` where it iterates throught the items inside the current directory and tracks the frequency directory/files. 
+
+Also created `formatBytes()` which turns the number of bytes into bigger file size types. The core idea is to keep dividing the bytes by 1024 until bytes is less than 1024 while dividing also keep track of each iteration count which reflects the bigger file size types respectivly.
 
 
 
