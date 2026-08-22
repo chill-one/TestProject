@@ -7,6 +7,7 @@ const fileInput = document.getElementById("file-input");
 const statusElement = document.getElementById("status");
 
 
+/** Loads a directory from the API and refreshes the file browser. */
 async function loadFiles(path = "") {
     try 
     {
@@ -38,6 +39,7 @@ async function loadFiles(path = "") {
 }
 
 
+/** Renders files and folders, including their available actions. */
 function renderItems(data) {
     const fileList = document.getElementById("file-list");
 
@@ -88,6 +90,7 @@ function renderItems(data) {
     });
 }
 
+/** Updates the URL to reflect an active search without reloading the page. */
 function navigateSearch(path, query)
 {
     const url = new URL(window.location);
@@ -113,6 +116,7 @@ function navigateSearch(path, query)
     window.history.pushState({}, "", url);
 }
 
+/** Moves to a directory and clears any active search. */
 function navigateTo(path)
 {
     const url = new URL(window.location);
@@ -136,6 +140,7 @@ function navigateTo(path)
     loadFiles(path);
 }
 
+/** Builds clickable breadcrumb buttons for the current directory. */
 function renderBreadcrumbs(path)
 {
     const breadcrumbs = document.getElementById("breadcrumbs");
@@ -186,6 +191,7 @@ function renderBreadcrumbs(path)
 
 }
 
+/** Shows the folder count, file count, and total size for a result set. */
 function renderSummary(items)
 {
     let fileCount = 0;
@@ -214,6 +220,7 @@ function renderSummary(items)
 }
 
 
+/** Converts a byte count into a short, readable size. */
 function formatBytes(bytes)
 {
     if (bytes === 0)
@@ -235,6 +242,7 @@ function formatBytes(bytes)
 }
 
 
+/** Searches the API and renders the matching files and folders. */
 async function searchFiles(path, query) 
 {
 
@@ -271,11 +279,13 @@ async function searchFiles(path, query)
     clearStatus();
 }
 
+/** Displays a status message below the file browser. */
 function showStatus(message)
 {
     statusElement.textContent = message;
 }
 
+/** Removes the current status message. */
 function clearStatus()
 {
     statusElement.textContent = "";
