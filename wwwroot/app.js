@@ -4,6 +4,8 @@ const searchInput = document.getElementById("search-input");
 const uploadForm = document.getElementById("upload-form");
 const fileInput = document.getElementById("file-input");
 
+const statusElement = document.getElementById("status");
+
 
 async function loadFiles(path = "") {
     try 
@@ -14,7 +16,11 @@ async function loadFiles(path = "") {
         );
 
         if(!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json();
+
+            throw new Error(
+                errorData.error ?? `HTTP error! status: ${response.status}`
+            );
         }
 
         const data = await response.json();
@@ -24,9 +30,11 @@ async function loadFiles(path = "") {
         renderItems(data);
     }
     catch (error)
-    {
+    {   
+        showStatus(error.message);
         console.error('Fetch failed:', error);
     }
+    clearStatus();
 }
 
 
@@ -239,7 +247,11 @@ async function searchFiles(path, query)
 
         if (!response.ok) 
         {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json();
+
+            throw new Error(
+                errorData.error ?? `HTTP error! status: ${response.status}`
+            );
         }
         // Convert response to JSON
         const data = await response.json();
@@ -253,12 +265,21 @@ async function searchFiles(path, query)
     }
     catch (error)
     {
+        showStatus(error.message);
         console.error("Search failed:", error);
     }
-    
+    clearStatus();
 }
 
+function showStatus(message)
+{
+    statusElement.textContent = message;
+}
 
+function clearStatus()
+{
+    statusElement.textContent = "";
+}
 
 
 
@@ -353,15 +374,21 @@ uploadForm.addEventListener("submit", async (event) => {
         );
 
         if(!response.ok) {
-            throw new Error(`Http error! status: ${response.status}`);
-        }
+            const errorData = await response.json();
 
+            throw new Error(
+                errorData.error ?? `HTTP error! status: ${response.status}`
+            );
+        }
+        
+        clearStatus();
         //empty the input
         fileInput.value = "";
         navigateTo(path);
     }
     catch (error)
     {
+        showStatus(error.message);
         console.error("Upload failed:", error);
     }
 });
