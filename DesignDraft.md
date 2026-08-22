@@ -588,6 +588,38 @@ What if the file we are uploading already exits.
 
 For this i would Reject the Upload and send 409 Conflict as opposed to silently **overwriting** someone's existing file.
 
+**Race Condition**
+    
+    relative directory
+        ↓
+    ResolvePath()
+        ↓
+    verify directory exists
+        ↓
+    sanitize filename
+        ↓
+    build destination path
+
+Thier is a race condition after this                 
+       
+        ↓
+    reject duplicate filename
+        ↓
+    create file
+        ↓
+    copy upload stream asynchronously
+
+**Scenario**
+
+    Request A: File.Exists → false
+    Request B: File.Exists → false
+
+    Request A: creates report.pdf
+    Request B: File.Create(report.pdf)
+
+`File.Create()` can overwrite an existing file, so request B could overwrite A.
+A stronger version is to create the file using `FileMode.CreateNew()`.
+
 
 
 
