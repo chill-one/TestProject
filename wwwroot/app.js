@@ -5,6 +5,19 @@ const uploadForm = document.getElementById("upload-form");
 const fileInput = document.getElementById("file-input");
 
 const statusElement = document.getElementById("status");
+let activeSearchController = null;
+
+
+/** Stops the search currently running, if there is one. */
+function cancelActiveSearch()
+{
+    //Abort the current active search
+    if (activeSearchController)
+    {
+        activeSearchController.abort();
+        activeSearchController = null;
+    }
+}
 
 
 /** Loads a directory from the API and refreshes the file browser. */
@@ -248,12 +261,21 @@ function formatBytes(bytes)
 /** Searches the API and renders the matching files and folders. */
 async function searchFiles(path, query) 
 {
+    cancelActiveSearch();
+
+    const controller = new AbortController();
+    activeSearchController = controller;
+
+    showStatus("Searching....");
 
     try
     {
         // Call search API
         const response = await fetch(
-            `/api/files/search?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`
+            `/api/files/search?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`,
+            {
+                signal: controller.signal
+            }
             );
 
         if (!response.ok) 
@@ -278,8 +300,21 @@ async function searchFiles(path, query)
     }
     catch (error)
     {
+        //For search cancel
+        if (error.name == "AbortError")
+        {
+            return;
+        }
         showStatus(error.message);
         console.error("Search failed:", error);
+    }
+    finally
+    {
+        //Only clean up if am still the active request
+        if (activeSearchController === controller)
+        {
+            activeSearchController = null;
+        }
     }
 }
 
