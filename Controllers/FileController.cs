@@ -51,11 +51,11 @@ public class FileController : ControllerBase
     /// <param name="path">Directory path relative to the configured home directory.</param>
     /// <param name="query">Text to find in item names.</param>
     [HttpGet("search")]
-    public ActionResult<List<FileItem>> Search([FromQuery] string path = "", [FromQuery] string query = "")
+    public ActionResult<List<FileItem>> Search([FromQuery] string path = "", [FromQuery] string query = "", CancellationToken cancellationToken = default)
     {
         try
         {
-            List<FileItem> items = _fileService.SearchDirectory(path, query);
+            List<FileItem> items = _fileService.SearchDirectory(path, query, cancellationToken);
             return Ok(items);
         }
         catch (DirectoryNotFoundException)
