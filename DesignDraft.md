@@ -650,7 +650,11 @@ The logic for this will be inside `renderSummary()` where it iterates throught t
 Also created `formatBytes()` which turns the number of bytes into bigger file size types. The core idea is to keep dividing the bytes by 1024 until bytes is less than 1024 while dividing also keep track of each iteration count which reflects the bigger file size types respectivly.
 
 
+Loading + error message area
+-
+The UI should be able to handle failures cleanly instead of only logging to the console.
 
+I will create two function `showStatus()` and `clearStatus()`.
 
 
 
