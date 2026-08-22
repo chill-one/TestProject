@@ -132,6 +132,7 @@ public class FileService
     /// <summary>Finds matching files and folders anywhere below a directory.</summary>
     /// <param name="relativePath">The directory to search, relative to the home directory.</param>
     /// <param name="query">Text to find in file and folder names.</param>
+    /// <param name="cancellationToken">Token used to stop a long-running search.</param>
     /// <returns>All matching items, or an empty list for a blank query.</returns>
     public List<FileItem> SearchDirectory(string relativePath, string query, CancellationToken cancellationToken)
     {
