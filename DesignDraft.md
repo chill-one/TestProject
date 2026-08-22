@@ -489,9 +489,22 @@ pipeline:
         ↓
     report.pdf downloads
 
-For checking if a file exists we can use `File.Exists()` and for reading a cile we can use `File.OpenRead()`.
+For checking if a file exists we can use `File.Exists()` and for reading a File we can use `File.OpenRead()`.
 
 The logic for this will be in function `OpenDownload()`.
+
+
+Frontend
+-
+Right now file render as
+
+    hello.txt (File) - 6 bytes
+
+for download we want something like
+
+    hello.txt (File) - 6 bytes  [Download]
+
+We can add this inside `renderItems()` after setting the textContent, For this simply creating a button and than attach a click handler should do it.
 
 
 
