@@ -1,35 +1,38 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
     <head>
+        <link rel="stylesheet" href="styles.css">
         <meta charset="utf-8" />
         <title>File Browser</title>
     </head>
-    
+
     <body>
-        <h1>File Browser</h1>
+        <main>
+            <h1>File Browser</h1>
 
-        <form id="search-form">
-            <input
-                id="search-input"
-                type="search"
-                placeholder="Search files and folders"
-            />
-            <button type="submit">Search</button>
-        </form>
+            <form id="search-form" class="toolbar">
+                <input
+                    id="search-input"
+                    type="search"
+                    placeholder="Search files and folders"
+                />
+                <button type="submit">Search</button>
+            </form>
 
-        <form id="upload-form">
-            <input id="file-input" type="file" />
-            <button type="submit">Upload</button>
-        </form>
+            <form id="upload-form" class="toolbar">
+                <input id="file-input" type="file" />
+                <button type="submit">Upload</button>
+            </form>
 
-        <nav id="breadcrumbs"></nav>
+            <nav id="breadcrumbs"></nav>
 
-        <div id="status"></div>
+            <div id="status"></div>
 
-        <div id="summary"></div>
+            <div id="summary"></div>
 
-        <ul id="file-list"></ul>
+            <ul id="file-list"></ul>
 
-        <script src="app.js"></script>
+            <script src="app.js"></script>
+        </main>
     </body>
 </html>
